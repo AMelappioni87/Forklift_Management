@@ -13,6 +13,8 @@ Namespace Maintenance.Shared.Models
         Public Property InterventoChecks As ICollection(Of InterventoCheck)
         Public Property Ricambi As ICollection(Of InterventoRicambi)
         Public Property Manodopera As ICollection(Of InterventoManodopera)
+        Public Property FirmaTecnico As Byte()
+        Public Property FirmaCliente As Byte()
     End Class
 End Namespace
 
