@@ -1,8 +1,13 @@
 Imports System.Windows
-Class MainWindow
-    Inherits Window
+Imports Maintenance.Client.ViewModels
 
-    Public Sub New()
-        InitializeComponent()
-    End Sub
-End Class
+Namespace Maintenance.Client.Views
+    Partial Class MainWindow
+        Inherits Window
+
+        Public Sub New()
+            InitializeComponent()
+            DataContext = New MainViewModel()
+        End Sub
+    End Class
+End Namespace
