@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-  <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\Maintenance.Shared\Maintenance.Shared.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7" />
   </ItemGroup>
 
 </Project>
