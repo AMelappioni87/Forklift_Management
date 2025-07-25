@@ -1,0 +1,37 @@
+<UserControl x:Class="Maintenance.Client.Views.TicketDetailDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/wpf/2008/toolkit">
+    <ScrollViewer>
+        <StackPanel Margin="16">
+            <TextBlock Text="Numero" />
+            <TextBox Width="200" Margin="0,0,0,8" Text="{Binding Ticket.Numero, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="Cliente" />
+            <toolkit:AutoCompleteBox x:Name="ClienteBox" Width="200" Margin="0,0,0,8"
+                                     ItemsSource="{Binding Clienti}" DisplayMemberPath="Nome" SelectedItem="{Binding SelectedCliente}" />
+            <TextBlock Text="Carrello" />
+            <toolkit:AutoCompleteBox x:Name="CarrelloBox" Width="200" Margin="0,0,0,8"
+                                     ItemsSource="{Binding Carrelli}" DisplayMemberPath="NumeroSerie" SelectedItem="{Binding SelectedCarrello}" />
+            <TextBlock Text="Tipo" />
+            <ComboBox Width="200" Margin="0,0,0,8" ItemsSource="{Binding TipoOptions}" SelectedItem="{Binding Ticket.Tipo}" />
+            <TextBlock Text="Priorità" />
+            <ComboBox Width="200" Margin="0,0,0,8" ItemsSource="{Binding PrioritaOptions}" SelectedItem="{Binding Ticket.Priorita}" />
+            <TextBlock Text="Data richiesta" />
+            <DatePicker Width="200" Margin="0,0,0,8" SelectedDate="{Binding Ticket.DataRichiesta}" />
+            <TextBlock Text="Descrizione" />
+            <TextBox Text="{Binding Ticket.Descrizione}" AcceptsReturn="True" Height="80" Margin="0,0,0,8" />
+            <Button Content="Aggiungi allegato" Width="120" Margin="0,0,0,8" Click="OnAddAttachment" />
+            <ListBox ItemsSource="{Binding Allegati}" SelectedItem="{Binding SelectedAllegato}" Height="80">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding NomeFile}" Width="150" />
+                            <Button Content="Elimina" Margin="8,0,0,0" CommandParameter="{Binding}" Click="OnRemoveAttachment" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button Content="Salva" Width="80" HorizontalAlignment="Right" Margin="0,8,0,0" Click="OnSave" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

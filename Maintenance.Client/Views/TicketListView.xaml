@@ -1,0 +1,35 @@
+<UserControl x:Class="Maintenance.Client.Views.TicketListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <materialDesign:DialogHost x:Name="Host">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <ComboBox Width="120" Margin="0,0,8,0" ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStato}" />
+                <ComboBox Width="120" Margin="0,0,8,0" ItemsSource="{Binding PrioritaOptions}" SelectedItem="{Binding SelectedPriorita}" />
+                <DatePicker Width="120" Margin="0,0,8,0" SelectedDate="{Binding DataDa}" />
+                <DatePicker Width="120" Margin="0,0,8,0" SelectedDate="{Binding DataA}" />
+                <ComboBox Width="150" Margin="0,0,8,0" ItemsSource="{Binding Operatori}" DisplayMemberPath="Nome" SelectedItem="{Binding SelectedTecnico}" />
+                <Button Content="Nuovo" Margin="0,0,8,0" Click="OnAdd" />
+                <Button Content="Modifica" Margin="0,0,8,0" Click="OnEdit" />
+                <Button Content="Elimina" Click="OnDelete" />
+            </StackPanel>
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FilteredTickets}" SelectedItem="{Binding SelectedTicket}" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Numero" Binding="{Binding Numero}" />
+                    <DataGridTextColumn Header="Cliente" Binding="{Binding Cliente.Nome}" />
+                    <DataGridTextColumn Header="Carrello" Binding="{Binding Carrello.NumeroSerie}" />
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" />
+                    <DataGridTextColumn Header="Priorità" Binding="{Binding Priorita}" />
+                    <DataGridTextColumn Header="Stato" Binding="{Binding Stato}" />
+                    <DataGridTextColumn Header="Tecnico" Binding="{Binding TecnicoAssegnato.Nome}" />
+                    <DataGridTextColumn Header="Data richiesta" Binding="{Binding DataRichiesta, StringFormat=d}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>

@@ -29,6 +29,22 @@ Namespace Maintenance.Client.Services
         <OperationContract>
         Function GetDocumenti() As List(Of Maintenance.Shared.Models.Documento)
 
+        'Ticket
+        <OperationContract>
+        Function GetTickets() As List(Of Maintenance.Shared.Models.Ticket)
+        <OperationContract>
+        Function CreateTicket(ticket As Maintenance.Shared.Models.Ticket) As Maintenance.Shared.Models.Ticket
+        <OperationContract>
+        Function UpdateTicket(ticket As Maintenance.Shared.Models.Ticket) As Maintenance.Shared.Models.Ticket
+        <OperationContract>
+        Function DeleteTicket(id As Integer) As Boolean
+
+        'Allegati ticket
+        <OperationContract>
+        Function CreateAllegatoTicket(allegato As Maintenance.Shared.Models.AllegatoTicket) As Maintenance.Shared.Models.AllegatoTicket
+        <OperationContract>
+        Function DeleteAllegatoTicket(id As Integer) As Boolean
+
         'Operatori
         <OperationContract>
         Function CreateOperatore(operatore As Maintenance.Shared.Models.Operatore) As Maintenance.Shared.Models.Operatore
