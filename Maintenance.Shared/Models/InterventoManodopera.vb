@@ -3,6 +3,7 @@ Namespace Maintenance.Shared.Models
         Public Property Id As Integer
         Public Property Descrizione As String
         Public Property Ore As Decimal
+        Public Property Tariffa As Decimal
 
         Public Property InterventoId As Integer
         Public Property Intervento As Intervento

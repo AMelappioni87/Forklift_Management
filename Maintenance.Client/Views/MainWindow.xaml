@@ -23,6 +23,9 @@
         <DataTemplate DataType="{x:Type vm:SkillViewModel}">
             <views:SkillView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InterventiListViewModel}">
+            <views:InterventiListView />
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <ContentControl Content="{Binding Navigation.CurrentViewModel}" />

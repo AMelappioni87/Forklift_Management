@@ -6,7 +6,9 @@ Namespace Maintenance.Shared.Models
         Public Property CheckItemId As Integer
         Public Property CheckItem As CheckItem
 
-        Public Property Esito As Boolean
+        ' Esito puo' assumere valori "OK", "Da sostituire" oppure "Da monitorare"
+        Public Property Esito As String
+        Public Property Nota As String
     End Class
 End Namespace
 
