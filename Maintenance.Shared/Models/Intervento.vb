@@ -1,7 +1,8 @@
 Namespace Maintenance.Shared.Models
     Public Class Intervento
         Public Property Id As Integer
-        Public Property Data As DateTime
+        Public Property DataInizio As DateTime
+        Public Property DataFine As DateTime?
         Public Property Note As String
 
         Public Property TicketId As Integer
