@@ -1,0 +1,29 @@
+<UserControl x:Class="Maintenance.Client.Views.DocumentiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <materialDesign:DialogHost x:Name="Host">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <ComboBox Width="120" Margin="0,0,8,0" ItemsSource="{Binding Tipi}" SelectedItem="{Binding SelectedTipo}" />
+                <ComboBox Width="120" Margin="0,0,8,0" ItemsSource="{Binding Associazioni}" SelectedItem="{Binding SelectedAssociazione}" />
+                <Button Content="Carica" Margin="0,0,8,0" Click="OnUpload" />
+                <Button Content="Scarica" Margin="0,0,8,0" Click="OnDownload" />
+                <Button Content="Elimina" Click="OnDelete" />
+            </StackPanel>
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FilteredDocumenti}" SelectedItem="{Binding SelectedDocumento}" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nome" Binding="{Binding NomeFile}" />
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" />
+                    <DataGridTextColumn Header="Entità" Binding="{Binding EntitaCollegata}" />
+                    <DataGridTextColumn Header="Data" Binding="{Binding DataCaricamento, StringFormat=d}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>
+
