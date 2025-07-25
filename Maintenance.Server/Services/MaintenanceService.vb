@@ -3,6 +3,7 @@ Imports Microsoft.Extensions.Configuration
 Imports Microsoft.EntityFrameworkCore
 Imports Maintenance.Server.Data
 Imports Maintenance.Shared.Models
+Imports Maintenance.Shared.DTOs
 
 Namespace Maintenance.Server.Services
     <ServiceContract>
@@ -104,6 +105,9 @@ Namespace Maintenance.Server.Services
 
         'Autenticazione
         <OperationContract> Function AuthenticateUser(username As String, password As String) As List(Of String)
+
+        'Dashboard
+        <OperationContract> Function GetDashboardData() As DashboardData
     End Interface
 
     Public Class MaintenanceService
@@ -956,6 +960,33 @@ Namespace Maintenance.Server.Services
                 End Using
             Catch ex As FaultException
                 Throw
+            Catch ex As Exception
+                Throw New FaultException(Of String)(ex.Message)
+            End Try
+        End Function
+
+        Public Function GetDashboardData() As DashboardData Implements IMaintenanceService.GetDashboardData
+            Try
+                Using ctx = CreateContext()
+                    Dim ticketCounts = ctx.Tickets
+                        .GroupBy(Function(t) t.Stato)
+                        .Select(Function(g) New With {Key .Status = g.Key, .Count = g.Count()})
+                        .ToDictionary(Function(x) x.Status.ToString(), Function(x) x.Count)
+
+                    Dim startDate = DateTime.Now
+                    Dim endDate = startDate.AddDays(7)
+                    Dim upcoming = ctx.Pianificazioni _
+                        .Include(Function(p) p.Carrello) _
+                        .ThenInclude(Function(c) c.Cliente) _
+                        .Where(Function(p) p.Data >= startDate AndAlso p.Data <= endDate) _
+                        .ToList()
+
+                    Return New DashboardData() With {
+                        .TicketCounts = ticketCounts,
+                        .InterventiProssimi7Giorni = upcoming.Count,
+                        .UpcomingAppointments = upcoming
+                    }
+                End Using
             Catch ex As Exception
                 Throw New FaultException(Of String)(ex.Message)
             End Try

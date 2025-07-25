@@ -8,7 +8,7 @@ Namespace Maintenance.Client.ViewModels
 
         Public Sub New()
             Navigation = New NavigationService()
-            Navigation.Navigate(New HomeViewModel())
+            Navigation.Navigate(New DashboardViewModel())
         End Sub
     End Class
 End Namespace

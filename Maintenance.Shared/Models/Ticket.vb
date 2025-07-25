@@ -6,6 +6,8 @@ Namespace Maintenance.Shared.Models
         Public Property DataApertura As DateTime
         Public Property DataChiusura As DateTime?
 
+        Public Property Stato As TicketStatus
+
         Public Property ClienteId As Integer
         Public Property Cliente As Cliente
 
