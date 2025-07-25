@@ -64,7 +64,8 @@ Namespace Maintenance.Server.Background
                             .Descrizione = p.Descrizione,
                             .DataApertura = now,
                             .ClienteId = p.Carrello.ClienteId,
-                            .CarrelloId = p.CarrelloId
+                            .CarrelloId = p.CarrelloId,
+                            .Stato = TicketStatus.Aperto
                         }
                         ctx.Tickets.Add(ticket)
                         ctx.SaveChanges()
