@@ -1,0 +1,44 @@
+<UserControl x:Class="Maintenance.Client.Views.CalendarioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <materialDesign:DialogHost x:Name="Host">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <Button Content="&#x276E;" Width="30" Click="OnPrev" />
+                <TextBlock Text="{Binding CurrentDate, StringFormat=MMMM yyyy}" FontWeight="Bold" Margin="8,0" VerticalAlignment="Center" />
+                <Button Content="&#x276F;" Width="30" Margin="8,0,0,0" Click="OnNext" />
+                <Button Content="Nuova pianificazione" Margin="16,0,0,0" Click="OnAddPlan" />
+            </StackPanel>
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding Days}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="7" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Gray" BorderThickness="0.5" Padding="4" AllowDrop="True" Drop="OnDayDrop" Tag="{Binding}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Date, StringFormat=d}" FontWeight="Bold" />
+                                <ItemsControl ItemsSource="{Binding Events}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#FFCDE6F7" Margin="0,2,0,0" MouseLeftButtonDown="OnEventClick" MouseMove="OnEventDrag" Tag="{Binding}">
+                                                <TextBlock Text="{Binding Subject}" FontSize="12" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>

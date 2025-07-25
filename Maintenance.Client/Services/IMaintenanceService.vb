@@ -65,6 +65,16 @@ Namespace Maintenance.Client.Services
         <OperationContract>
         Function DeleteSkill(id As Integer) As Boolean
 
+        'Pianificazioni
+        <OperationContract>
+        Function GetPianificazioni() As List(Of Maintenance.Shared.Models.Pianificazione)
+        <OperationContract>
+        Function CreatePianificazione(pianificazione As Maintenance.Shared.Models.Pianificazione) As Maintenance.Shared.Models.Pianificazione
+        <OperationContract>
+        Function UpdatePianificazione(pianificazione As Maintenance.Shared.Models.Pianificazione) As Maintenance.Shared.Models.Pianificazione
+        <OperationContract>
+        Function DeletePianificazione(id As Integer) As Boolean
+
         'Autenticazione
         <OperationContract>
         Function AuthenticateUser(username As String, password As String) As List(Of String)

@@ -44,6 +44,7 @@
                     <TextBlock Text="Prossimi appuntamenti" FontWeight="Bold" Margin="0,0,0,8" />
                     <Calendar x:Name="AppointmentsCalendar" DisplayDate="{x:Static sys:DateTime.Now}" />
                     <ListBox ItemsSource="{Binding Appointments}" DisplayMemberPath="Data" />
+                    <Button Content="Apri calendario" Margin="0,8,0,0" Click="OnOpenCalendar" />
                 </StackPanel>
             </materialDesign:Card>
         </StackPanel>
