@@ -29,6 +29,26 @@ Namespace Maintenance.Client.Services
         <OperationContract>
         Function GetDocumenti() As List(Of Maintenance.Shared.Models.Documento)
 
+        'Operatori
+        <OperationContract>
+        Function CreateOperatore(operatore As Maintenance.Shared.Models.Operatore) As Maintenance.Shared.Models.Operatore
+        <OperationContract>
+        Function GetOperatori() As List(Of Maintenance.Shared.Models.Operatore)
+        <OperationContract>
+        Function UpdateOperatore(operatore As Maintenance.Shared.Models.Operatore) As Maintenance.Shared.Models.Operatore
+        <OperationContract>
+        Function DeleteOperatore(id As Integer) As Boolean
+
+        'Skill
+        <OperationContract>
+        Function GetSkills() As List(Of Maintenance.Shared.Models.Skill)
+        <OperationContract>
+        Function CreateSkill(skill As Maintenance.Shared.Models.Skill) As Maintenance.Shared.Models.Skill
+        <OperationContract>
+        Function UpdateSkill(skill As Maintenance.Shared.Models.Skill) As Maintenance.Shared.Models.Skill
+        <OperationContract>
+        Function DeleteSkill(id As Integer) As Boolean
+
         'Autenticazione
         <OperationContract>
         Function AuthenticateUser(username As String, password As String) As List(Of String)

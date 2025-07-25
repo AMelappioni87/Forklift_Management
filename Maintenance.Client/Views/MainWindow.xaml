@@ -17,6 +17,12 @@
         <DataTemplate DataType="{x:Type vm:CarrelliViewModel}">
             <views:CarrelliView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:OperatoriViewModel}">
+            <views:OperatoriView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SkillViewModel}">
+            <views:SkillView />
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
