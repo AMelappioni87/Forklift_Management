@@ -46,53 +46,56 @@ Namespace Maintenance.Server.Background
         Private Sub Execute(state As Object)
             Try
                 Using ctx = CreateContext()
-                    Dim now = DateTime.Now
-                    ' Seleziona le pianificazioni scadute
-                    Dim scadute = ctx.Pianificazioni _
-                        .Include(Function(p) p.Carrello) _
-                        .ThenInclude(Function(c) c.Cliente) _
-                        .Where(Function(p) p.Data <= now) _
-                        .ToList()
-
-                    For Each p In scadute
-                        Dim operatore = GetOperatoreDisponibile(ctx)
-                        If operatore Is Nothing Then Continue For
-
-                        ' Crea un nuovo ticket di manutenzione programmata
-                        Dim ticket = New Ticket() With {
-                            .Titolo = "manutenzione programmata",
-                            .Descrizione = p.Descrizione,
-                            .DataApertura = now,
-                            .ClienteId = p.Carrello.ClienteId,
-                            .CarrelloId = p.CarrelloId,
-                            .Stato = TicketStatus.Aperto
-                        }
-                        ctx.Tickets.Add(ticket)
-                        ctx.SaveChanges()
-
-                        ' Associa un primo intervento al tecnico scelto
-                        Dim intervento = New Intervento() With {
-                            .Data = now,
-                            .Note = "Intervento programmato",
-                            .TicketId = ticket.Id,
-                            .OperatoreId = operatore.Id
-                        }
-                        ctx.Interventi.Add(intervento)
-                        ctx.SaveChanges()
-
-                        ' Invia email di notifica
-                        If Not String.IsNullOrEmpty(operatore.Email) Then
-                            SendEmail(operatore.Email, "Nuovo ticket assegnato", $"Ti è stato assegnato il ticket {ticket.Id}.")
-                        End If
-                        If p.Carrello?.Cliente IsNot Nothing AndAlso Not String.IsNullOrEmpty(p.Carrello.Cliente.Email) Then
-                            SendEmail(p.Carrello.Cliente.Email, "Apertura ticket manutenzione", $"E' stato aperto il ticket {ticket.Id}.")
-                        End If
-                    Next
+                    ProcessPianificazioni(ctx, True, Me)
                 End Using
             Catch ex As Exception
                 ' Gestire log in produzione
                 Console.WriteLine($"Errore PianificazioneWorker: {ex.Message}")
             End Try
+        End Sub
+
+        Friend Shared Sub ProcessPianificazioni(ctx As MaintenanceDbContext, Optional sendMail As Boolean = True, Optional worker As PianificazioneWorker = Nothing)
+            Dim now = DateTime.Now
+            Dim scadute = ctx.Pianificazioni _
+                .Include(Function(p) p.Carrello) _
+                .ThenInclude(Function(c) c.Cliente) _
+                .Where(Function(p) p.Data <= now) _
+                .ToList()
+
+            For Each p In scadute
+                Dim operatore = worker?.GetOperatoreDisponibile(ctx)
+                If operatore Is Nothing Then operatore = GetOperatoreDisponibile(ctx)
+                If operatore Is Nothing Then Continue For
+
+                Dim ticket = New Ticket() With {
+                    .Titolo = "manutenzione programmata",
+                    .Descrizione = p.Descrizione,
+                    .DataApertura = now,
+                    .ClienteId = p.Carrello.ClienteId,
+                    .CarrelloId = p.CarrelloId,
+                    .Stato = TicketStatus.Aperto
+                }
+                ctx.Tickets.Add(ticket)
+                ctx.SaveChanges()
+
+                Dim intervento = New Intervento() With {
+                    .Data = now,
+                    .Note = "Intervento programmato",
+                    .TicketId = ticket.Id,
+                    .OperatoreId = operatore.Id
+                }
+                ctx.Interventi.Add(intervento)
+                ctx.SaveChanges()
+
+                If sendMail AndAlso worker IsNot Nothing Then
+                    If Not String.IsNullOrEmpty(operatore.Email) Then
+                        worker.SendEmail(operatore.Email, "Nuovo ticket assegnato", $"Ti è stato assegnato il ticket {ticket.Id}.")
+                    End If
+                    If p.Carrello?.Cliente IsNot Nothing AndAlso Not String.IsNullOrEmpty(p.Carrello.Cliente.Email) Then
+                        worker.SendEmail(p.Carrello.Cliente.Email, "Apertura ticket manutenzione", $"E' stato aperto il ticket {ticket.Id}.")
+                    End If
+                End If
+            Next
         End Sub
 
         ''' <summary>
@@ -127,7 +130,7 @@ Namespace Maintenance.Server.Background
             End Using
         End Sub
 
-        Private Function CreateContext() As MaintenanceDbContext
+        Protected Overridable Function CreateContext() As MaintenanceDbContext
             Dim options = New DbContextOptionsBuilder(Of MaintenanceDbContext)() _
                 .UseSqlServer(_connectionString).Options
             Return New MaintenanceDbContext(options)

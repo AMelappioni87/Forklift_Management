@@ -126,7 +126,7 @@ Namespace Maintenance.Server.Services
             _connectionString = config.GetConnectionString("DefaultConnection")
         End Sub
 
-        Private Function CreateContext() As MaintenanceDbContext
+        Protected Overridable Function CreateContext() As MaintenanceDbContext
             Dim options = New DbContextOptionsBuilder(Of MaintenanceDbContext)() _
                 .UseSqlServer(_connectionString).Options
             Return New MaintenanceDbContext(options)
