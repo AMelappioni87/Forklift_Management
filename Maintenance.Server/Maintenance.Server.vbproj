@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Maintenance.Server</RootNamespace>
+    <RootNamespace></RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 

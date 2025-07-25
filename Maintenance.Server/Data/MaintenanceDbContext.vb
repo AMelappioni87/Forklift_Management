@@ -175,6 +175,7 @@ Namespace Maintenance.Server.Data
             ' Utente
             modelBuilder.Entity(Of Utente)().HasKey(Function(u) u.Id)
             modelBuilder.Entity(Of Utente)().Property(Function(u) u.Username).IsRequired()
+            modelBuilder.Entity(Of Utente)().Property(Function(u) u.Ruolo).IsRequired()
             modelBuilder.Entity(Of Utente)() _
                 .HasOne(Function(u) u.Operatore) _
                 .WithMany(Function(o) o.Utenti) _

@@ -13,7 +13,7 @@ Namespace Maintenance.Server.Services
         <OperationContract> Function GetCliente(id As Integer) As Cliente
         <OperationContract> Function GetClienti() As List(Of Cliente)
         <OperationContract> Function UpdateCliente(cliente As Cliente) As Cliente
-        <OperationContract> Function DeleteCliente(id As Integer) As Boolean
+        <OperationContract> Function DeleteCliente(id As Integer, requesterId As Integer) As Boolean
 
         'Carrelli
         <OperationContract> Function CreateCarrello(carrello As Carrello) As Carrello
@@ -68,7 +68,7 @@ Namespace Maintenance.Server.Services
         <OperationContract> Function CreateIntervento(intervento As Intervento) As Intervento
         <OperationContract> Function GetIntervento(id As Integer) As Intervento
         <OperationContract> Function GetInterventi() As List(Of Intervento)
-        <OperationContract> Function UpdateIntervento(intervento As Intervento) As Intervento
+        <OperationContract> Function UpdateIntervento(intervento As Intervento, requesterId As Integer) As Intervento
         <OperationContract> Function DeleteIntervento(id As Integer) As Boolean
 
         'CheckItem
@@ -102,6 +102,8 @@ Namespace Maintenance.Server.Services
         <OperationContract> Function GetUtenti() As List(Of Utente)
         <OperationContract> Function UpdateUtente(utente As Utente) As Utente
         <OperationContract> Function DeleteUtente(id As Integer) As Boolean
+        <OperationContract> Function RegisterUtente(username As String, password As String, ruolo As String, requesterId As Integer) As Utente
+        <OperationContract> Function GetPermessi(ruolo As String) As List(Of String)
 
         'Autenticazione
         <OperationContract> Function AuthenticateUser(username As String, password As String) As List(Of String)
@@ -129,6 +131,20 @@ Namespace Maintenance.Server.Services
                 .UseSqlServer(_connectionString).Options
             Return New MaintenanceDbContext(options)
         End Function
+
+        Private Function GetUserRole(userId As Integer) As String
+            Using ctx = CreateContext()
+                Dim u = ctx.Utenti.Find(userId)
+                If u Is Nothing Then Return String.Empty
+                Return u.Ruolo
+            End Using
+        End Function
+
+        Private Sub Authorize(userRole As String, ParamArray allowed As String())
+            If Not allowed.Select(Function(r) r.ToLower()).Contains(userRole.ToLower()) Then
+                Throw New FaultException(Of String)("Utente non autorizzato")
+            End If
+        End Sub
 
         'Clienti
         Public Function CreateCliente(cliente As Cliente) As Cliente Implements IMaintenanceService.CreateCliente
@@ -175,8 +191,10 @@ Namespace Maintenance.Server.Services
             End Try
         End Function
 
-        Public Function DeleteCliente(id As Integer) As Boolean Implements IMaintenanceService.DeleteCliente
+        Public Function DeleteCliente(id As Integer, requesterId As Integer) As Boolean Implements IMaintenanceService.DeleteCliente
             Try
+                Dim role = GetUserRole(requesterId)
+                Authorize(role, "admin")
                 Using ctx = CreateContext()
                     Dim entity = ctx.Clienti.Find(id)
                     If entity Is Nothing Then Return False
@@ -184,6 +202,8 @@ Namespace Maintenance.Server.Services
                     ctx.SaveChanges()
                     Return True
                 End Using
+            Catch ex As FaultException
+                Throw
             Catch ex As Exception
                 Throw New FaultException(Of String)(ex.Message)
             End Try
@@ -635,13 +655,24 @@ Namespace Maintenance.Server.Services
             End Try
         End Function
 
-        Public Function UpdateIntervento(intervento As Intervento) As Intervento Implements IMaintenanceService.UpdateIntervento
+        Public Function UpdateIntervento(intervento As Intervento, requesterId As Integer) As Intervento Implements IMaintenanceService.UpdateIntervento
             Try
+                Dim role = GetUserRole(requesterId)
+                If role = "tecnico" AndAlso intervento.DataFine.HasValue Then
+                    Using ctx = CreateContext()
+                        Dim dbIntervento = ctx.Interventi.Find(intervento.Id)
+                        If dbIntervento Is Nothing OrElse dbIntervento.OperatoreId <> requesterId Then
+                            Throw New FaultException(Of String)("Operatore non autorizzato")
+                        End If
+                    End Using
+                End If
                 Using ctx = CreateContext()
                     ctx.Interventi.Update(intervento)
                     ctx.SaveChanges()
                     Return intervento
                 End Using
+            Catch ex As FaultException
+                Throw
             Catch ex As Exception
                 Throw New FaultException(Of String)(ex.Message)
             End Try
@@ -949,15 +980,46 @@ Namespace Maintenance.Server.Services
             End Try
         End Function
 
+        Public Function RegisterUtente(username As String, password As String, ruolo As String, requesterId As Integer) As Utente Implements IMaintenanceService.RegisterUtente
+            Try
+                Dim role = GetUserRole(requesterId)
+                Authorize(role, "admin")
+                Dim hashed = SecurityHelper.ComputeHash(password)
+                Dim newUser As New Utente With {.Username = username, .PasswordHash = hashed, .Ruolo = ruolo}
+                Using ctx = CreateContext()
+                    ctx.Utenti.Add(newUser)
+                    ctx.SaveChanges()
+                    Return newUser
+                End Using
+            Catch ex As FaultException
+                Throw
+            Catch ex As Exception
+                Throw New FaultException(Of String)(ex.Message)
+            End Try
+        End Function
+
+        Public Function GetPermessi(ruolo As String) As List(Of String) Implements IMaintenanceService.GetPermessi
+            Select Case ruolo.ToLower()
+                Case "admin"
+                    Return New List(Of String) From {"GestioneClienti", "GestioneUtenti", "GestioneInterventi"}
+                Case "tecnico"
+                    Return New List(Of String) From {"GestioneInterventi"}
+                Case "cliente"
+                    Return New List(Of String) From {"VisualizzaDati"}
+                Case Else
+                    Return New List(Of String)()
+            End Select
+        End Function
+
         Public Function AuthenticateUser(username As String, password As String) As List(Of String) Implements IMaintenanceService.AuthenticateUser
             Try
+                Dim hashed = SecurityHelper.ComputeHash(password)
                 Using ctx = CreateContext()
-                    Dim user = ctx.Utenti.SingleOrDefault(Function(u) u.Username = username AndAlso u.PasswordHash = password)
+                    Dim user = ctx.Utenti.SingleOrDefault(Function(u) u.Username = username AndAlso u.PasswordHash = hashed)
                     If user Is Nothing Then
                         Throw New FaultException(Of String)("Credenziali non valide")
                     End If
-                    'Valori di ruolo demo
-                    Return New List(Of String) From {"User"}
+                    Return GetPermessi(user.Ruolo)
                 End Using
             Catch ex As FaultException
                 Throw
