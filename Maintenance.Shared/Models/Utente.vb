@@ -3,6 +3,8 @@ Namespace Maintenance.Shared.Models
         Public Property Id As Integer
         Public Property Username As String
         Public Property PasswordHash As String
+        'admin, tecnico, cliente
+        Public Property Ruolo As String
 
         Public Property OperatoreId As Integer?
         Public Property Operatore As Operatore
