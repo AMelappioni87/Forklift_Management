@@ -28,6 +28,14 @@ Namespace Maintenance.Client.Services
         Function GetInterventi() As List(Of Maintenance.Shared.Models.Intervento)
         <OperationContract>
         Function GetDocumenti() As List(Of Maintenance.Shared.Models.Documento)
+        <OperationContract>
+        Function CreateDocumento(documento As Maintenance.Shared.Models.Documento) As Maintenance.Shared.Models.Documento
+        <OperationContract>
+        Function GetDocumento(id As Integer) As Maintenance.Shared.Models.Documento
+        <OperationContract>
+        Function UpdateDocumento(documento As Maintenance.Shared.Models.Documento) As Maintenance.Shared.Models.Documento
+        <OperationContract>
+        Function DeleteDocumento(id As Integer) As Boolean
 
         'Ticket
         <OperationContract>
