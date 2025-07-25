@@ -108,6 +108,7 @@ Namespace Maintenance.Server.Services
 
         'Dashboard
         <OperationContract> Function GetDashboardData() As DashboardData
+        <OperationContract> Function GetReportData() As ReportData
     End Interface
 
     Public Class MaintenanceService
@@ -985,6 +986,57 @@ Namespace Maintenance.Server.Services
                         .TicketCounts = ticketCounts,
                         .InterventiProssimi7Giorni = upcoming.Count,
                         .UpcomingAppointments = upcoming
+                    }
+                End Using
+            Catch ex As Exception
+                Throw New FaultException(Of String)(ex.Message)
+            End Try
+        End Function
+
+        Public Function GetReportData() As ReportData Implements IMaintenanceService.GetReportData
+            Try
+                Using ctx = CreateContext()
+                    Dim aperti = ctx.Tickets
+                        .Where(Function(t) t.DataApertura <> DateTime.MinValue)
+                        .GroupBy(Function(t) t.DataApertura.ToString("yyyy-MM"))
+                        .Select(Function(g) New With {Key g.Key, .Count = g.Count()})
+                        .ToDictionary(Function(x) x.Key, Function(x) x.Count)
+
+                    Dim chiusi = ctx.Tickets
+                        .Where(Function(t) t.DataChiusura.HasValue)
+                        .GroupBy(Function(t) t.DataChiusura.Value.ToString("yyyy-MM"))
+                        .Select(Function(g) New With {Key g.Key, .Count = g.Count()})
+                        .ToDictionary(Function(x) x.Key, Function(x) x.Count)
+
+                    Dim interventiCliente = ctx.Interventi
+                        .Include(Function(i) i.Ticket)
+                        .ThenInclude(Function(t) t.Cliente)
+                        .GroupBy(Function(i) i.Ticket.Cliente.Nome)
+                        .Select(Function(g) New With {Key g.Key, .Count = g.Count()})
+                        .ToDictionary(Function(x) x.Key, Function(x) x.Count)
+
+                    Dim tempoMedio = ctx.Tickets
+                        .Where(Function(t) t.DataChiusura.HasValue)
+                        .GroupBy(Function(t) t.Tipo)
+                        .Select(Function(g) New With {Key g.Key, .AvgDays = g.Average(Function(t) (t.DataChiusura.Value - t.DataApertura).TotalDays)})
+                        .ToDictionary(Function(x) x.Key, Function(x) x.AvgDays)
+
+                    Dim costi = ctx.Interventi
+                        .Include(Function(i) i.Ticket)
+                        .ThenInclude(Function(t) t.Cliente)
+                        .Include(Function(i) i.Ricambi)
+                        .Include(Function(i) i.Manodopera)
+                        .AsEnumerable()
+                        .GroupBy(Function(i) i.Ticket.Cliente.Nome)
+                        .Select(Function(g) New With {Key g.Key, .Totale = g.Sum(Function(i) i.Ricambi.Sum(Function(r) r.Quantita * r.PrezzoUnitario) + i.Manodopera.Sum(Function(m) m.Ore * m.Tariffa))})
+                        .ToDictionary(Function(x) x.Key, Function(x) x.Totale)
+
+                    Return New ReportData() With {
+                        .TicketApertiPerMese = aperti,
+                        .TicketChiusiPerMese = chiusi,
+                        .InterventiPerCliente = interventiCliente,
+                        .TempoMedioRisoluzione = tempoMedio,
+                        .CostiTotaliPerCliente = costi
                     }
                 End Using
             Catch ex As Exception

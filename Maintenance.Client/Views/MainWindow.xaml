@@ -29,6 +29,9 @@
         <DataTemplate DataType="{x:Type vm:CalendarioViewModel}">
             <views:CalendarioView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ReportViewModel}">
+            <views:ReportView />
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <ContentControl Content="{Binding Navigation.CurrentViewModel}" />

@@ -83,6 +83,10 @@ Namespace Maintenance.Client.Services
         <OperationContract>
         Function DeletePianificazione(id As Integer) As Boolean
 
+        'Report
+        <OperationContract>
+        Function GetReportData() As Maintenance.Shared.DTOs.ReportData
+
         'Autenticazione
         <OperationContract>
         Function AuthenticateUser(username As String, password As String) As List(Of String)
