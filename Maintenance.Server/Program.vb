@@ -3,9 +3,12 @@ Imports Maintenance.Server.Services
 
 Module Program
     Sub Main(args As String())
-        Using host As New ServiceHost(GetType(ExampleService))
+        Dim baseAddress As New Uri("net.tcp://localhost:9000/MaintenanceService")
+        Using host As New ServiceHost(GetType(MaintenanceService), baseAddress)
+            host.AddServiceEndpoint(GetType(IMaintenanceService), New NetTcpBinding(), "")
             host.Open()
-            Console.WriteLine("Service is running... Press Enter to exit")
+            Console.WriteLine($"Service running at {baseAddress}")
+            Console.WriteLine("Press Enter to exit")
             Console.ReadLine()
             host.Close()
         End Using
