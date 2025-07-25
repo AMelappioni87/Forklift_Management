@@ -87,6 +87,10 @@ Namespace Maintenance.Server.Data
             ' Ticket
             modelBuilder.Entity(Of Ticket)().HasKey(Function(t) t.Id)
             modelBuilder.Entity(Of Ticket)().Property(Function(t) t.Titolo).IsRequired()
+            modelBuilder.Entity(Of Ticket)().Property(Function(t) t.Numero).IsRequired(False)
+            modelBuilder.Entity(Of Ticket)().Property(Function(t) t.Tipo).IsRequired(False)
+            modelBuilder.Entity(Of Ticket)().Property(Function(t) t.Priorita).IsRequired(False)
+            modelBuilder.Entity(Of Ticket)().Property(Function(t) t.DataRichiesta).IsRequired()
             modelBuilder.Entity(Of Ticket)() _
                 .HasOne(Function(t) t.Cliente) _
                 .WithMany(Function(c) c.Tickets) _
@@ -95,6 +99,11 @@ Namespace Maintenance.Server.Data
                 .HasOne(Function(t) t.Carrello) _
                 .WithMany(Function(c) c.Tickets) _
                 .HasForeignKey(Function(t) t.CarrelloId) _
+                .IsRequired(False)
+            modelBuilder.Entity(Of Ticket)() _
+                .HasOne(Function(t) t.TecnicoAssegnato) _
+                .WithMany() _
+                .HasForeignKey(Function(t) t.TecnicoId) _
                 .IsRequired(False)
 
             ' AllegatoTicket
