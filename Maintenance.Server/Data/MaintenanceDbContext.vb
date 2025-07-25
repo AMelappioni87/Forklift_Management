@@ -38,6 +38,10 @@ Namespace Maintenance.Server.Data
             ' Carrello
             modelBuilder.Entity(Of Carrello)().HasKey(Function(c) c.Id)
             modelBuilder.Entity(Of Carrello)().Property(Function(c) c.NumeroSerie).IsRequired()
+            modelBuilder.Entity(Of Carrello)().Property(Function(c) c.Costruttore).IsRequired(False)
+            modelBuilder.Entity(Of Carrello)().Property(Function(c) c.Modello).IsRequired(False)
+            modelBuilder.Entity(Of Carrello)().Property(Function(c) c.DataProssimaManutenzione).IsRequired(False)
+            modelBuilder.Entity(Of Carrello)().Property(Function(c) c.Stato).IsRequired(False)
             modelBuilder.Entity(Of Carrello)() _
                 .HasOne(Function(c) c.Cliente) _
                 .WithMany(Function(c) c.Carrelli) _

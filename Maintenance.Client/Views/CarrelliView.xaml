@@ -1,0 +1,35 @@
+<UserControl x:Class="Maintenance.Client.Views.CarrelliView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <materialDesign:DialogHost x:Name="Host">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <ComboBox Width="150" Margin="0,0,8,0" ItemsSource="{Binding Clienti}" DisplayMemberPath="Nome" SelectedItem="{Binding SelectedCliente}"/>
+                <ComboBox Width="120" Margin="0,0,8,0" SelectedItem="{Binding SelectedStato}">
+                    <ComboBoxItem Content="" />
+                    <ComboBoxItem Content="Attivo" />
+                    <ComboBoxItem Content="Inattivo" />
+                </ComboBox>
+                <Button Content="Nuovo" Margin="0,0,8,0" Click="OnAdd" />
+                <Button Content="Modifica" Margin="0,0,8,0" Click="OnEdit" />
+                <Button Content="Elimina" Margin="0,0,8,0" Click="OnDelete" />
+                <Button Content="Dettaglio" Click="OnDetail" />
+            </StackPanel>
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FilteredCarrelli}" SelectedItem="{Binding SelectedCarrello}" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Costruttore" Binding="{Binding Costruttore}" />
+                    <DataGridTextColumn Header="Modello" Binding="{Binding Modello}" />
+                    <DataGridTextColumn Header="Matricola" Binding="{Binding NumeroSerie}" />
+                    <DataGridTextColumn Header="Cliente" Binding="{Binding Cliente.Nome}" />
+                    <DataGridTextColumn Header="Prossima Manut." Binding="{Binding DataProssimaManutenzione, StringFormat=d}" />
+                    <DataGridTextColumn Header="Stato" Binding="{Binding Stato}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>
