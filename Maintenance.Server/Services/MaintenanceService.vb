@@ -91,6 +91,10 @@ Namespace Maintenance.Server.Services
         <OperationContract> Function UpdateDocumento(documento As Documento) As Documento
         <OperationContract> Function DeleteDocumento(id As Integer) As Boolean
 
+        'PDF intervento e firme
+        <OperationContract> Function GeneraFoglioIntervento(interventoId As Integer) As Documento
+        <OperationContract> Function SalvaFirmeIntervento(interventoId As Integer, firmaTecnico As String, firmaCliente As String) As Boolean
+
         'Utenti
         <OperationContract> Function CreateUtente(utente As Utente) As Utente
         <OperationContract> Function GetUtente(id As Integer) As Utente
@@ -821,6 +825,58 @@ Namespace Maintenance.Server.Services
                     Dim entity = ctx.Documenti.Find(id)
                     If entity Is Nothing Then Return False
                     ctx.Documenti.Remove(entity)
+                    ctx.SaveChanges()
+                    Return True
+                End Using
+            Catch ex As Exception
+                Throw New FaultException(Of String)(ex.Message)
+            End Try
+        End Function
+
+        Public Function GeneraFoglioIntervento(interventoId As Integer) As Documento Implements IMaintenanceService.GeneraFoglioIntervento
+            Try
+                Using ctx = CreateContext()
+                    Dim intervento = ctx.Interventi _
+                        .Include(Function(i) i.Ticket).ThenInclude(Function(t) t.Cliente) _
+                        .Include(Function(i) i.Ticket).ThenInclude(Function(t) t.Carrello) _
+                        .Include(Function(i) i.InterventoChecks).ThenInclude(Function(ic) ic.CheckItem) _
+                        .Include(Function(i) i.Ricambi) _
+                        .Include(Function(i) i.Manodopera) _
+                        .SingleOrDefault(Function(i) i.Id = interventoId)
+                    If intervento Is Nothing Then
+                        Throw New FaultException(Of String)($"Intervento {interventoId} non trovato")
+                    End If
+
+                    Dim bytes = InterventoPdfGenerator.Generate(intervento)
+
+                    Dim doc As New Documento With {
+                        .NomeFile = $"Intervento_{interventoId}.pdf",
+                        .Contenuto = bytes,
+                        .ClienteId = intervento.Ticket.ClienteId,
+                        .CarrelloId = intervento.Ticket.CarrelloId
+                    }
+                    ctx.Documenti.Add(doc)
+                    ctx.SaveChanges()
+                    Return doc
+                End Using
+            Catch ex As Exception
+                Throw New FaultException(Of String)(ex.Message)
+            End Try
+        End Function
+
+        Public Function SalvaFirmeIntervento(interventoId As Integer, firmaTecnico As String, firmaCliente As String) As Boolean Implements IMaintenanceService.SalvaFirmeIntervento
+            Try
+                Using ctx = CreateContext()
+                    Dim intervento = ctx.Interventi.Find(interventoId)
+                    If intervento Is Nothing Then Return False
+
+                    If Not String.IsNullOrEmpty(firmaTecnico) Then
+                        intervento.FirmaTecnico = Convert.FromBase64String(firmaTecnico)
+                    End If
+                    If Not String.IsNullOrEmpty(firmaCliente) Then
+                        intervento.FirmaCliente = Convert.FromBase64String(firmaCliente)
+                    End If
+
                     ctx.SaveChanges()
                     Return True
                 End Using
